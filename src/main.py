@@ -11,6 +11,7 @@ from config import *
 from color import *
 from index import indexAlbum
 from models import PhotoMetadata, AlbumMetadata, toJson
+from select import selectClosestPhoto
 from translator import GridTranslator
 from utils import *
 
@@ -23,17 +24,17 @@ print(cacheAlbumMeta)
 print(jsonStr)
 
 
-def selectClosestPhoto(albumMeta, targetColor):
-    closestPhoto = albumMeta.photos[0]
-    closestDist = colorDist(closestPhoto.avg_color, targetColor)
-    for photo in albumMeta.photos:
-        dist = colorDist(photo.avg_color, targetColor)
-        if dist < closestDist:
-            closestDist = dist
-            closestPhoto = photo
-    print(targetColor)
-    print(closestPhoto.avg_color)
-    return closestPhoto
+# def selectClosestPhoto(albumMeta, targetColor):
+#     closestPhoto = albumMeta.photos[0]
+#     closestDist = colorDist(closestPhoto.avg_color, targetColor)
+#     for photo in albumMeta.photos:
+#         dist = colorDist(photo.avg_color, targetColor)
+#         if dist < closestDist:
+#             closestDist = dist
+#             closestPhoto = photo
+#     print(targetColor)
+#     print(closestPhoto.avg_color)
+#     return closestPhoto
 
 
 im = Image.open(targetPhoto)
