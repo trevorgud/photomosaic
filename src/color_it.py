@@ -14,6 +14,7 @@ pathColor = "C:\\Users\\trevo\\Downloads\\family-photos-clean\\2001 Cameroon\\20
 # im = Image.open(pathColor)
 # im.show()
 
+# "Show" each photo alongside each color that is the average for the photo.
 photoPaths = getPhotoPaths(photosDir)
 for path in photoPaths:
     color = photoPathAvgColor(path)
@@ -27,10 +28,3 @@ for path in photoPaths:
     print(im.size)
     print(color)
     time.sleep(1)
-
-
-# im = Image.open(pathGray)
-# print(im.get_format_mimetype())
-# print(im.mode)
-# print(im.format)
-# color = photoPathAvgColor(path)

@@ -5,6 +5,7 @@ from config import aspectTolerance, targetAspect
 from models import AlbumMetadata, PhotoMetadata
 from utils import getPhotoPaths
 
+
 # Given the album path, create the album index/metadata and return as object.
 def indexAlbum(albumDir) -> AlbumMetadata:
     photoPaths = getPhotoPaths(albumDir)

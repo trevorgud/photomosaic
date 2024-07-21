@@ -23,21 +23,27 @@ def correctAspect(targetAspect, dimensions):
         return (w, int(newH))
 
 
+# Crop a given image on the right and bottom sides to match the given dimensions.
+# @param image The PIL Image to crop
+# @param newDimensions A tuple representing dimensions to crop to.
 def cropImage(image: Image, newDimensions) -> Image:
     w, h = newDimensions
     return image.crop((0, 0, w, h))
 
 
+# The a full list of paths for all files in the given directory (recursively).
 def getPhotoPaths(directory):
     return list(Path(directory).rglob("*" + photoExtension))
 
 
+# Write the album metadata to file at the given path
 def writeAlbumFile(albumMeta, writePath):
     p = pickle.dumps(albumMeta)
     f = open(writePath, "wb")
     f.write(p)
 
 
+# Read album metadata from the given path and return as an AlbumMetadata object.
 def readAlbumFile(readPath):
     f = open(readPath, "rb")
     p = f.read()
