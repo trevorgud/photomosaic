@@ -40,8 +40,13 @@ def correctAspect(targetAspect, dimensions):
         return (w, int(newH))
 
 
-def photoAvgColor(photoPath):
+def photoPathAvgColor(photoPath):
     im = Image.open(photoPath)
+    np_image = numpy.array(image)
+    avg_color = numpy.mean(np_image, axis=(0, 1))
+    return avg_color
+
+def photoAvgColor(image):
     np_image = numpy.array(image)
     avg_color = numpy.mean(np_image, axis=(0, 1))
     return avg_color
@@ -61,8 +66,9 @@ aspectTolerance = 0.05
 scaleSize = (750, 500)
 # The number of photos (across width, height) to create the final target photo.
 # Because initial test has all photos same dimension, the width and height will be the same.
-targetPhotoDimension = (32, 32)
+targetPhotoGrid = (32, 32)
 photoExtension = ".jpg"
+targetPhoto = "C:\\Users\\trevo\\Downloads\\family-photos-clean\\1993 Ashlie and Trevor\\Folder001_00135A.jpg"
 
 
 def getPhotoPaths(directory):
@@ -75,7 +81,7 @@ photo = photoPaths[0]
 image = Image.open(photo)
 
 # Average color usage
-avgColor = photoAvgColor(photo)
+avgColor = photoPathAvgColor(photo)
 print(avgColor)
 
 # Image cropping usage
@@ -98,12 +104,12 @@ def indexAlbum(albumDir) -> AlbumMetadata:
         if abs(aspect - targetAspect) > aspectTolerance:
             omitted += 1
         else:
-            # For faster testing, only do 10 at a time for now.
-            if count > 10:
-                break
+            # For faster testing, only do 10 and then stop.
+            # if count > 10:
+            #     break
             count = count + 1
             print("handling valid photo: ", count)
-            meta = PhotoMetadata(path = path, avg_color = photoAvgColor(path))
+            meta = PhotoMetadata(path = path, avg_color = photoPathAvgColor(path))
             indices.append(meta)
     print("Total: ", total)
     print("Omitted: ", omitted)
@@ -127,12 +133,79 @@ def readAlbumFile(readPath):
     return albumMeta
 
 
-albumMeta = indexAlbum(photosDir)
-writeAlbumFile(albumMeta, "./meta.pickle")
-rAlbum = readAlbumFile("./meta.pickle")
-jsonStr = toJson(rAlbum)
-print(rAlbum)
-print(jsonStr)
+# albumMeta = indexAlbum(photosDir)
+# writeAlbumFile(albumMeta, "./meta.pickle")
+# rAlbum = readAlbumFile("./meta.pickle")
+# jsonStr = toJson(rAlbum)
+# print(rAlbum)
+# print(jsonStr)
+
+
+# # Uses the target photo dim
+# def gridCoordToPixCoord(gridCoord):
+#     gridW, gridH = targetPhotoGrid
+#     coordW, coordH = gridCoord
+#     targetW, targetH = correctAspect(targetAspect, im.size)
+#     newW = int((targetW / gridW) * coordW)
+#     newH = int((targetH / gridH) * coordH)
+#     return (newW, newH)
+
+
+# Translate grid coords to photo coords.
+# Give the grid size as tuple of number of blocks (w,h)
+# Give the photo size as number of pixels (w,h)
+class GridTranslator:
+    def __init__(self, gridWH, photoWH):
+        self.gridWH = gridWH
+        self.photoWH = photoWH
+
+    def gridCoordToPixCoord(self, gridCoord):
+        gridW, gridH = self.gridWH
+        photoW, photoH = self.photoWH
+        coordW, coordH = gridCoord
+        newW = int((photoW / gridW) * coordW)
+        newH = int((photoH / gridH) * coordH)
+        return (newW, newH)
+    
+    def pixWH(self):
+        gridW, gridH = self.gridWH
+        photoW, photoH = self.photoWH
+        pixW = int(photoW / gridW)
+        pixH = int(photoH / gridH)
+        return (pixW, pixH)
+    
+
+im = Image.open(targetPhoto)
+targetWidth, targetHeight = correctAspect(targetAspect, im.size)
+im = im.crop((0, 0, targetWidth, targetHeight))
+# im.show()
+
+gridW, gridH = targetPhotoGrid
+scaleW, scaleH = scaleSize
+targetTranslator = GridTranslator(targetPhotoGrid, im.size)
+canvasTranslator = GridTranslator(targetPhotoGrid, (gridW * scaleW, gridH * scaleH))
+for w in range(gridW):
+    for h in range(gridH):
+        pixW, pixH = targetTranslator.gridCoordToPixCoord((w, h))
+        offsetW, offsetH = targetTranslator.pixWH()
+        print(targetTranslator.gridCoordToPixCoord((w, h)))
+        print(im.size)
+        targetCrop = im.crop((pixW, pixH, pixW + offsetW, pixH + offsetH))
+        color = photoAvgColor(targetCrop)
+        print(color)
+        # targetCrop.show()
+
+
+        # canvasPixCoord = canvasTranslator.gridCoordToPixCoord((w, h))
+        # pixW0 = w * scaleW
+        # pixW1 = pixW0 + scaleW
+        # pixH0 = h * scaleH
+        # pixH1 = pixH0 + scaleH
+        # imSmall = im.crop((pixW0, pixH0, pixW1, pixH1))
+        # imSmall.show()
+        # break
+
+
 
 # Indexing photos to later generate a target photo.
 # Persistent indexing is for faster lookup, indexing 1000 photos takes a few mins.
