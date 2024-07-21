@@ -1,16 +1,21 @@
 from PIL import Image
 from pathlib import Path
 import numpy
+import json
 
 
-class PhotoColor:
+class PhotoMetadata:
     def __init__(self, path, avg_color):
-        self.path = path
-        self.avg_color = avg_color
+        self.path = str(path)
+        self.avg_color = tuple(avg_color)
 
 class AlbumMetadata:
-    def __init__(self, indices):
-        self.indices = indices
+    def __init__(self, photos):
+        self.photos = photos
+
+def toJson(albumMeta: AlbumMetadata) -> str:
+    return json.dumps(albumMeta, default = lambda o: o.__dict__)
+
 
 
 # Take a target aspect as float and dimensions as tuple (w, h)
@@ -38,15 +43,20 @@ def photoAvgColor(photoPath):
 
 
 def cropImage(image: Image, newDimensions) -> Image:
-    # only crop from the right and bottom.
-    # w, h = image.size
     w, h = newDimensions
     return image.crop((0, 0, w, h))
 
 
 
 photosDir = "C:\\Users\\trevo\\Downloads\\family-photos-clean"
+# Use 3:2 aspect ratio.
 targetAspect = 1.5
+# Photos outside the aspect tolerance will not be used.
+aspectTolerance = 0.05
+# Each photo used will be scaled to this size.
+scaleSize = (750, 500)
+# The number of photos (across width, height) to create the final target photo.
+targetPhotoDimension = (30, 20)
 
 # Photo operations, using the first image as sample.
 photoPaths = list(Path(photosDir).rglob("*.jpg"))
@@ -60,20 +70,36 @@ print(avgColor)
 # Image cropping usage
 dimensions = correctAspect(targetAspect, image.size)
 newImg = cropImage(image, dimensions)
-newImg.show()
+# newImg.show()
 
 
 total = len(photoPaths)
 omitted = 0
 
+# Indexing photos to later generate a target photo.
+# Persistent indexing is for faster lookup, indexing 1000 photos takes a few mins.
 validPhotos = []
-for each in photoPaths:
-    im = Image.open(each)
+indices = []
+count = 0
+for path in photoPaths:
+    im = Image.open(path)
     w, h = im.size
-    if h > w:
+    aspect = w / h
+    if abs(aspect - targetAspect) > aspectTolerance:
         omitted += 1
     else:
-        validPhotos.append(each)
+        # For faster testing, only do 10 at a time for now.
+        if count > 10:
+            break
+        count = count + 1
+        print("handling valid photo: ", count)
+        validPhotos.append(path)
+        meta = PhotoMetadata(path = path, avg_color = photoAvgColor(path))
+        indices.append(meta)
+
+albumMeta = AlbumMetadata(photos = indices)
+albumJson = toJson(albumMeta)
+print(albumJson)
 
 print("total: ", total)
 print("omitted: ", omitted)
@@ -82,31 +108,35 @@ print("omitted: ", omitted)
 # maxH = 0
 # minW = float('inf')
 # maxW = 0
-minA = float('inf')
-maxA = 0
-sumW = 0
-sumH = 0
-for each in validPhotos:
-    im = Image.open(each)
-    w, h = im.size
-    aspect = w / h
-    print(aspect)
-    newW, newH = correctAspect(targetAspect, im.size)
-    print(newW / newH)
-    if aspect > maxA:
-        maxA = aspect
-    if aspect < minA:
-        minA = aspect
-    sumW = sumW + w
-    sumH = sumH + h
-    # if h > maxH:
-    #     maxH = h
-    # if h < minH:
-    #     minH = h
+# minA = float('inf')
+# maxA = 0
+# sumW = 0
+# sumH = 0
+# for each in validPhotos:
+#     im = Image.open(each)
+#     w, h = im.size
+#     aspect = w / h
+#     # print(aspect)
+#     newW, newH = correctAspect(targetAspect, im.size)
+#     # print(newW / newH)
+#     if aspect > maxA:
+#         maxA = aspect
+#     if aspect < minA:
+#         minA = aspect
+#     sumW = sumW + w
+#     sumH = sumH + h
+#     if h > maxH:
+#         maxH = h
+#     if h < minH:
+#         minH = h
+#     if w > maxW:
+#         maxW = w
+#     if w < minW:
+#         minW = w
 # print("Height: ", minH, maxH)
 # print("Width: ", minW, maxW)
-print ("Avg Aspect: ", sumW / sumH)
-print ("Aspect: ", minA, maxA)
+# print ("Avg Aspect: ", sumW / sumH)
+# print ("Aspect: ", minA, maxA)
 
 
 print("Hello, world!")
