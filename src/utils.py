@@ -23,6 +23,14 @@ def correctAspect(targetAspect, dimensions):
         return (w, int(newH))
 
 
+# Given a target image, prepare it for mosaic and return the prepped image.
+def prepTargetImage(targetImage, targetAspect):
+    # So far the only thing to do is calculating correct aspect and cropping to that aspect.
+    targetWidth, targetHeight = correctAspect(targetAspect, targetImage.size)
+    cropped = targetImage.crop((0, 0, targetWidth, targetHeight))
+    return cropped
+
+
 # Crop a given image on the right and bottom sides to match the given dimensions.
 # @param image The PIL Image to crop
 # @param newDimensions A tuple representing dimensions to crop to.
