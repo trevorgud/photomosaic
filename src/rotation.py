@@ -26,6 +26,12 @@ def hintRotations(photoPaths):
         percentStr = "{:.1f}".format(percent)
         print(percentStr+"%")
 
+    # TODO: Capture all the photos that are suspected of needing rotation first, and store persistently.
+    # Then can quickly handle all the known suspicious photos at once, instead of handling a few,
+    # waiting for it to run for some minutes finding another, and then handing some more.
+    # Productivity: its a form of time boxing, where instead of multitasking fixing photos and doing something else
+    # in between while waiting, can just set it to index the suspicicous photos and then time box handle them
+    # all at once when indexing is done. No waiting required.
     for path in photoPaths:
         photoCount += 1
         if photoCount % 10 == 0:
@@ -44,14 +50,14 @@ def hintRotations(photoPaths):
             print(path)
             im = Image.open(path)
             im.show()
-            rotationAngle = input("Should I rotate and overwrite? ")
+            rotationAngle = input("Rotation angle? ")
             rotationAngle = int(rotationAngle)
             rotationAngle = rotationAngle * -1
             if rotationAngle != 0:
                 rotated = im.rotate(rotationAngle, expand=True)
                 exif = get_orientation_cleared_exif(rotated)
                 rotated.show()
-                confirm = input("ok? ")
+                confirm = input("Ok? ")
                 if confirm == "y":
                     rotated.save(path, exif = exif)
 
