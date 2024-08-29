@@ -4,7 +4,10 @@ import json
 class PhotoMetadata:
     def __init__(self, path, avg_color):
         self.path = str(path)
-        self.avg_color = tuple(avg_color)
+        if isinstance(avg_color, (list, tuple)):
+            self.avg_color = tuple(avg_color)
+        else:
+            self.avg_color = (avg_color,)
 
 
 class AlbumMetadata:

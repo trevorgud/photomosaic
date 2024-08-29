@@ -1,5 +1,7 @@
 import numpy
 from PIL import Image
+from opener import imageOpen
+from config import imageMode
 
 # Color utilities
 # All colors must be RGB
@@ -13,17 +15,17 @@ def colorDist(color1, color2):
 
 # Given the path of a photo, calculate the average color for the photo.
 def photoPathAvgColor(photoPath):
-    image = Image.open(photoPath)
+    image = imageOpen(photoPath)
     return photoAvgColor(image)
 
 
 # Given a PIL Image, calculate the average color for the image.
 def photoAvgColor(image):
-    # Likely grayscale image, return nothing as all photos must be RGB.
-    if image.mode == "L":
-        return None
     np_image = numpy.array(image)
-    avg_color = numpy.mean(np_image, axis=(0, 1))
+    axis = None
+    if image.mode == "RGB":
+        axis = (0, 1)
+    avg_color = numpy.mean(np_image, axis=axis)
     return avg_color
 
 

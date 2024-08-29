@@ -19,13 +19,11 @@ import select
 from translator import GridTranslator
 from utils import *
 
-from vision import get_image_orientation_from_faces
 
-
-# albumMeta = indexAlbum(photosDir)
-# writeAlbumFile(albumMeta, "./meta.pickle")
-# cacheAlbumMeta = albumMeta
-cacheAlbumMeta = readAlbumFile("./meta.pickle")
+albumMeta = indexAlbum(photosDir)
+writeAlbumFile(albumMeta, "./meta.pickle")
+cacheAlbumMeta = albumMeta
+# cacheAlbumMeta = readAlbumFile("./meta.pickle")
 # jsonStr = toJson(cacheAlbumMeta)
 # print(cacheAlbumMeta)
 # print(jsonStr)
@@ -37,7 +35,6 @@ im = prepTargetImage(im, targetAspect)
 # photoSelector = PhotoSelector(albumMeta = cacheAlbumMeta, allowedFunc = select.allowedByAllowAll)
 # photoSelector = PhotoSelector(albumMeta = cacheAlbumMeta, allowedFunc = select.allowedByNoDuplicates)
 photoSelector = PhotoSelector(albumMeta = cacheAlbumMeta, allowedFunc = select.allowedByDistance(3))
-# TODO: Figure out why no touch selection rule not working, seems to allow adjacent and diagonal.
 # photoSelector = PhotoSelector(albumMeta = cacheAlbumMeta, allowedFunc = select.allowedByAllowNoTouch)
 # photoSelector = PhotoSelector(albumMeta = cacheAlbumMeta, allowedFunc = select.allowedByAllowDiag)
 report = GeneratorReport(targetPhotoGrid)

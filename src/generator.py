@@ -3,6 +3,7 @@ import random
 
 from config import *
 from color import photoAvgColor
+from opener import imageOpen
 from translator import GridTranslator
 from utils import correctAspect
 
@@ -17,7 +18,7 @@ class MosaicGenerator():
         scaleW, scaleH = scaleSize
         targetTranslator = GridTranslator(targetPhotoGrid, targetImage.size)
         canvasTranslator = GridTranslator(targetPhotoGrid, (gridW * scaleW, gridH * scaleH))
-        canvas = Image.new(mode="RGB", size=(gridW * scaleW, gridH * scaleH))
+        canvas = Image.new(mode=imageMode, size=(gridW * scaleW, gridH * scaleH))
 
         gridCoords = []
         for w in range(gridW):
@@ -39,7 +40,7 @@ class MosaicGenerator():
             self.report.placeAtLocation((w, h), closestPhoto.path)
 
             photoPath = closestPhoto.path
-            sampleIm = Image.open(photoPath)
+            sampleIm = imageOpen(photoPath)
             cropW, cropH = correctAspect(targetAspect, sampleIm.size)
             sampleIm = sampleIm.crop((0, 0, cropW, cropH))
             sampleIm = sampleIm.resize(scaleSize)
