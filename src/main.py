@@ -1,5 +1,6 @@
 # TODO: Many of these imports are probably not needed.
 from pathlib import Path
+import argparse
 import json
 import pickle
 import math
@@ -20,31 +21,48 @@ from translator import GridTranslator
 from utils import *
 
 
-albumMeta = indexAlbum(photosDir)
-writeAlbumFile(albumMeta, "./meta.pickle")
-cacheAlbumMeta = albumMeta
-# cacheAlbumMeta = readAlbumFile("./meta.pickle")
-# jsonStr = toJson(cacheAlbumMeta)
-# print(cacheAlbumMeta)
-# print(jsonStr)
+# Parse CLI args.
+def getArgs():
+    parser = argparse.ArgumentParser(description="Generate a photo mosaic")
+    parser.add_argument(
+        '--reindex',
+        action='store_true',
+        help='Reindex the photo instead of using previous cache'
+    )
+    args = parser.parse_args()
+    return args
 
+
+# Load the args.
+args = getArgs()
+
+
+# Decide whether to index the album or use cached index.
+cacheAlbumMeta = None
+try:
+    cacheAlbumMeta = readAlbumFile("./meta.pickle")
+except:
+    print("No cache found...")
+if args.reindex or cacheAlbumMeta is None:
+    albumMeta = indexAlbum(photosDir)
+    writeAlbumFile(albumMeta, "./meta.pickle")
+    cacheAlbumMeta = albumMeta
+
+
+# Open and prep target image.
 im = Image.open(targetPhoto)
 im = prepTargetImage(im, targetAspect)
 
 
-# photoSelector = PhotoSelector(albumMeta = cacheAlbumMeta, allowedFunc = select.allowedByAllowAll)
-# photoSelector = PhotoSelector(albumMeta = cacheAlbumMeta, allowedFunc = select.allowedByNoDuplicates)
+# Build and run mosaic generator
 photoSelector = PhotoSelector(albumMeta = cacheAlbumMeta, allowedFunc = select.allowedByDistance(3))
-# photoSelector = PhotoSelector(albumMeta = cacheAlbumMeta, allowedFunc = select.allowedByAllowNoTouch)
-# photoSelector = PhotoSelector(albumMeta = cacheAlbumMeta, allowedFunc = select.allowedByAllowDiag)
 report = GeneratorReport(targetPhotoGrid)
 generator = MosaicGenerator(photoSelector = photoSelector, report = report)
 mosaic = generator.generatePhotoMosaic(im)
+writePickled(report, reportPath)
 
-# Can inspect the report after to see which photo was used in each location.
-# print(report.getAtLocation((0, 0)))
-# print(report.getAtLocation((18, 13)))
 
+# Display the resulting image (either preview or full mode).
 preview = True
 if preview:
     previewIm = mosaic.resize(im.size)

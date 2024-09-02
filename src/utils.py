@@ -45,6 +45,7 @@ def getPhotoPaths(directory):
 
 
 # Write the album metadata to file at the given path
+# DEPRECATED, use writePickled
 def writeAlbumFile(albumMeta, writePath):
     p = pickle.dumps(albumMeta)
     f = open(writePath, "wb")
@@ -52,8 +53,24 @@ def writeAlbumFile(albumMeta, writePath):
 
 
 # Read album metadata from the given path and return as an AlbumMetadata object.
+# DEPRECATED, use readPickled
 def readAlbumFile(readPath):
     f = open(readPath, "rb")
     p = f.read()
     albumMeta = pickle.loads(p)
     return albumMeta
+
+
+# Write out the object (pickled) at the given path.
+def writePickled(obj, path):
+    p = pickle.dumps(obj)
+    f = open(path, "wb")
+    f.write(p)
+
+
+# Read in a pickled object from the given path.
+def readPickled(path):
+    f = open(path, "rb")
+    p = f.read()
+    obj = pickle.loads(p)
+    return obj

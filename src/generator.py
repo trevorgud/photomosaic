@@ -30,7 +30,7 @@ class MosaicGenerator():
 
         for each in gridCoords:
             w, h = each
-            print("Handling position: ", w, h)
+            print("Selecting mosaic position: ", w, h)
             pixW, pixH = targetTranslator.gridCoordToPixCoord((w, h))
             gridPixW, gridPixH = targetTranslator.pixWH()
             targetCrop = targetImage.crop((pixW, pixH, pixW + gridPixW, pixH + gridPixH))

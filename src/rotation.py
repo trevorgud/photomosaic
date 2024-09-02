@@ -1,16 +1,11 @@
+import argparse
 import math
 
 from google.cloud import vision
-from google.api_core.client_options import ClientOptions
 from PIL import Image, ExifTags
 
 from config import photosDir
 from utils import getPhotoPaths
-
-# Google vision client.
-# TODO: Don't hard code credentials.
-options = ClientOptions(api_key = "")
-client = vision.ImageAnnotatorClient(client_options = options)
 
 
 # NOTE: Rotation is extra tricky because of EXIF tags.
@@ -36,30 +31,37 @@ def hintRotations(photoPaths):
         photoCount += 1
         if photoCount % 10 == 0:
             printProgress()
+        singlePhotoHint(path)
 
-        frot, fmsg = get_image_orientation_from_faces(path)
-        erot, emsg = get_image_orientation_from_exif(path)
-        if frot != 0 and erot != 0:
-            print("May need rotation (both):")
-        elif frot != 0:
-            print("May need rotation (face):")
-        elif erot != 0:
-            print("May need rotation (exif):")
 
-        if frot != 0 or erot != 0:
-            print(path)
-            im = Image.open(path)
-            im.show()
-            rotationAngle = input("Rotation angle? ")
-            rotationAngle = int(rotationAngle)
-            rotationAngle = rotationAngle * -1
-            if rotationAngle != 0:
-                rotated = im.rotate(rotationAngle, expand=True)
-                exif = get_orientation_cleared_exif(rotated)
-                rotated.show()
-                confirm = input("Ok? ")
-                if confirm == "y":
-                    rotated.save(path, exif = exif)
+def singlePhotoHint(path):
+    frot, fmsg = get_image_orientation_from_faces(path)
+    erot, emsg = get_image_orientation_from_exif(path)
+    if frot != 0 and erot != 0:
+        print("May need rotation (both):")
+    elif frot != 0:
+        print("May need rotation (face):")
+    elif erot != 0:
+        print("May need rotation (exif):")
+
+    if frot != 0 or erot != 0:
+        singlePhotoHintSimple(path)
+
+
+def singlePhotoHintSimple(path):
+    print(path)
+    im = Image.open(path)
+    im.show()
+    rotationAngle = input("Rotation angle? ")
+    rotationAngle = int(rotationAngle)
+    rotationAngle = rotationAngle * -1
+    if rotationAngle != 0:
+        rotated = im.rotate(rotationAngle, expand=True)
+        exif = get_orientation_cleared_exif(rotated)
+        rotated.show()
+        confirm = input("Ok? ")
+        if confirm == "y":
+            rotated.save(path, exif = exif)
 
 
 def get_image_orientation_from_faces(image_path):
@@ -68,6 +70,10 @@ def get_image_orientation_from_faces(image_path):
         content = image_file.read()
 
     image = vision.Image(content=content)
+
+    # Module singleton. Subsequent imports will use cached system.modules.
+    # Only initializes the client once.
+    from vision_client import client
 
     # Perform face detection
     response = client.face_detection(image=image)
@@ -141,5 +147,24 @@ def get_orientation_cleared_exif(image):
 
 
 if __name__ == '__main__':
-    photoPaths = getPhotoPaths(photosDir)
-    hintRotations(photoPaths)
+    parser = argparse.ArgumentParser(description="Give modes and arguments for rotation")
+    # --interactive flag (boolean)
+    parser.add_argument(
+        '--interactive',
+        action='store_true',
+        help='Run rotation in interactive mode. Defaults to False.'
+    )
+    # --path argument (string, can be empty)
+    parser.add_argument(
+        '--path',
+        type=str,
+        default='',
+        help='Path to a specific photo for rotation.'
+    )
+    args = parser.parse_args()
+
+    if args.interactive:
+        photoPaths = getPhotoPaths(photosDir)
+        hintRotations(photoPaths)
+    elif args.path != "":
+        singlePhotoHintSimple(args.path)

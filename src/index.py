@@ -24,7 +24,7 @@ def indexAlbum(albumDir) -> AlbumMetadata:
             # if count > 10:
             #     break
             count = count + 1
-            print("handling valid photo: ", count)
+            print("Indexing valid photo: ", count)
             meta = PhotoMetadata(path = path, avg_color = photoPathAvgColor(path))
             indices.append(meta)
     print("Total: ", total)

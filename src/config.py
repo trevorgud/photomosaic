@@ -16,3 +16,5 @@ targetPhoto = "C:\\Users\\trevo\\Downloads\\notable\\Folder001_00283A.jpg"
 # The mode to open images in.
 # Valid: RGB, L
 imageMode = "RGB"
+
+reportPath = "./report.pickle"
