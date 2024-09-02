@@ -5,9 +5,10 @@ from models import AlbumMetadata
 
 
 class PhotoSelector():
-    def __init__(self, albumMeta, allowedFunc):
+    def __init__(self, albumMeta, allowedFunc, exclusions):
         self.albumMeta = albumMeta
         self.allowedFunc = allowedFunc
+        self.exclusions = exclusions
         # Store the location of the already used photos as a map from path to list of locations used.
         self.usedMatrix = {}
 
@@ -20,6 +21,8 @@ class PhotoSelector():
             # Skip consideration for non-allowed photos (ex: already used)
             usedLocations = self.getUsedLocations(photo)
             if not self.allowedFunc(set(usedLocations), location):
+                continue
+            if self.exclusions.get(photo.path):
                 continue
             dist = colorDist(photo.avg_color, targetColor)
             if (dist < closestDist):

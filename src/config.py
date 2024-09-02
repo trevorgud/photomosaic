@@ -18,3 +18,5 @@ targetPhoto = "C:\\Users\\trevo\\Downloads\\notable\\Folder001_00283A.jpg"
 imageMode = "RGB"
 
 reportPath = "./report.pickle"
+
+exclusionsPath = "./exclusions.txt"

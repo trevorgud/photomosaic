@@ -11,6 +11,7 @@ from PIL import Image
 
 from config import *
 from color import *
+from exclude import loadExclusions
 from generator import MosaicGenerator
 from index import indexAlbum
 from models import PhotoMetadata, AlbumMetadata, toJson
@@ -53,9 +54,15 @@ if args.reindex or cacheAlbumMeta is None:
 im = Image.open(targetPhoto)
 im = prepTargetImage(im, targetAspect)
 
+# Load a map (photo path -> boolean) of photos to exclude.
+exclusions = loadExclusions()
 
 # Build and run mosaic generator
-photoSelector = PhotoSelector(albumMeta = cacheAlbumMeta, allowedFunc = select.allowedByDistance(3))
+photoSelector = PhotoSelector(
+    albumMeta = cacheAlbumMeta,
+    allowedFunc = select.allowedByDistance(3),
+    exclusions = exclusions,
+)
 report = GeneratorReport(targetPhotoGrid)
 generator = MosaicGenerator(photoSelector = photoSelector, report = report)
 mosaic = generator.generatePhotoMosaic(im)
