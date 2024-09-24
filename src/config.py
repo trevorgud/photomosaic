@@ -13,6 +13,7 @@ photoExtension = ".jpg"
 # The photo we are attempting to create as a photomosaic
 # targetPhoto = "C:\\Users\\trevo\\Downloads\\family-photos-clean\\1993 Ashlie and Trevor\\Folder001_00135A.jpg"
 targetPhoto = "C:\\Users\\trevo\\Downloads\\notable\\Folder001_00283A.jpg"
+# targetPhoto = "C:\\Users\\trevo\\Downloads\\notable\\camera1.webp"
 # The mode to open images in.
 # Valid: RGB, L
 imageMode = "RGB"

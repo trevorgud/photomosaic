@@ -15,6 +15,8 @@ python3 -m pip install --upgrade pip
 .\.venv\Scripts\python ./src/main.py --reindex
 ```
 
+### Other tools included
+Rotation utilities:
 ```powershell
 # To auto detect and prompt for rotation, iterating over each photo:
 .\.venv\Scripts\python ./src/rotation.py --interactive
@@ -25,4 +27,14 @@ python3 -m pip install --upgrade pip
 
 # To do the same thing, but with a specific photo path:
 .\.venv\Scripts\python ./src/rotation.py --path "my-photo-path.jpg"
+```
+
+Report/stats queries:
+```powershell
+# To query the resulting report for photo usage (and in future, other statistics):
+.\.venv\Scripts\python ./src/report.py --loc 30,30
+# Will give the photo location at position x=30 (left to right) and y=30 (top to bottom).
+
+# To take all used photos and copy to an archive location:
+.\.venv\Scripts\python ./src/report.py --archive "/path/to/archive/directory"
 ```

@@ -54,10 +54,8 @@ if args.reindex or cacheAlbumMeta is None:
 im = Image.open(targetPhoto)
 im = prepTargetImage(im, targetAspect)
 
-# Load a map (photo path -> boolean) of photos to exclude.
-exclusions = loadExclusions()
-
 # Build and run mosaic generator
+exclusions = loadExclusions()
 photoSelector = PhotoSelector(
     albumMeta = cacheAlbumMeta,
     allowedFunc = select.allowedByDistance(3),
@@ -70,7 +68,7 @@ writePickled(report, reportPath)
 
 
 # Display the resulting image (either preview or full mode).
-preview = True
+preview = False
 if preview:
     previewIm = mosaic.resize(im.size)
     previewIm.show()
